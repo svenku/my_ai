@@ -10,17 +10,22 @@ client = genai.Client(api_key=api_key)
 
 def main():
     try:    
-        prompt = sys.argv[1]
-        print("Generating text...")
-        messages = [genai.types.Content(role="user", parts=[genai.types.Part(text=prompt)]),]
+        args = sys.argv
+        prompt = args[1]
 
+        messages = [
+            genai.types.Content(role="user", 
+                                parts=[genai.types.Part(text=prompt)]),
+        ]   
         response = client.models.generate_content(
-                model="gemini-2.0-flash-001",
-                contents=messages)
+            model="gemini-2.0-flash-001",
+            contents=messages)
+
+        if len(args) == 3 and args[2] == "--verbose":
+            print(f'User prompt: {prompt}')
+            print(f'Prompt tokens: {response.usage_metadata.prompt_token_count}')
+            print(f'Response tokens: {response.usage_metadata.candidates_token_count}')
         print(response.text)
-        print("Response Usage Metadata:")
-        print(f'Prompt tokens: {response.usage_metadata.prompt_token_count}')
-        print(f'Response tokens: {response.usage_metadata.candidates_token_count}')
     except IndexError:
         print("Usage: python main.py <prompt>")
         sys.exit(1)
@@ -28,5 +33,4 @@ def main():
     
 
 if __name__ == "__main__":
-
     main() 
